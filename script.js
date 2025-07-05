@@ -30,17 +30,22 @@ const tileFilenames = [
 
 const tileBank = document.getElementById("tile-bank");
 
-// 타일 생성
+const tileGroups = {
+  1: document.querySelector(".group-1"),
+  5: document.querySelector(".group-5"),
+  9: document.querySelector(".group-9"),
+};
+
 tileFilenames.forEach((name) => {
+  const prefix = parseInt(name[0]); // 시작 숫자 추출
   const img = document.createElement("img");
   img.src = `tiles/${name}.png`;
   img.className = "tile";
   img.id = `tile-${name}`;
-  img.draggable = true;
   img.dataset.code = name;
-  tileBank.appendChild(img);
-});
 
+  tileGroups[prefix]?.appendChild(img);
+});
 let selectedTile = null;
 
 // 타일 이벤트 등록
@@ -59,7 +64,10 @@ function registerTileEvents() {
 }
 
 registerTileEvents();
-
+function getTileGroup(code) {
+  const prefix = parseInt(code[0]);
+  return document.querySelector(`.group-${prefix}`);
+}
 // 슬롯 드롭 이벤트
 document.querySelectorAll(".slot").forEach((slot) => {
   slot.addEventListener("dragover", (e) => e.preventDefault());
@@ -104,7 +112,8 @@ tileBank.addEventListener("drop", (e) => {
   e.preventDefault();
   const tileId = e.dataTransfer.getData("text/plain");
   const tile = document.getElementById(tileId);
-  tileBank.appendChild(tile);
+  const group = getTileGroup(tile.dataset.code);
+  group?.appendChild(tile);
   selectedTile = null;
 });
 
@@ -166,7 +175,10 @@ function calculateScore() {
 function resetBoard() {
   document.querySelectorAll(".slot").forEach((slot) => {
     const tile = slot.firstChild;
-    if (tile) tileBank.appendChild(tile);
+    if (tile) {
+      const group = getTileGroup(tile.dataset.code);
+      group?.appendChild(tile); // ← 그룹으로 복귀!
+    }
   });
   calculateScore();
 }
