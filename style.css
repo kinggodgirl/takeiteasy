@@ -29,6 +29,9 @@ h1 {
   height: auto;
   cursor: grab;
   transition: transform 0.2s;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-drag: element;
 }
 
 .tile:active {
@@ -43,6 +46,7 @@ h1 {
   clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
   box-shadow: 0 0 0 1px #050505; /* 테두리처럼 보이게 */
   box-sizing: border-box;
+  touch-action: manipulation;
 }
 
 .row {
@@ -90,4 +94,8 @@ h1 {
   align-items: center;
   gap: 40px; /* 보드와 점수판 간 간격 */
   margin-top: 40px;
+}
+.tile.selected {
+  transform: scale(1.05);
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.3);
 }

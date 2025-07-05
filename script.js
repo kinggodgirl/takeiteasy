@@ -42,45 +42,53 @@ tileFilenames.forEach((name) => {
   tileBank.appendChild(img);
 });
 
-// 3. 드래그 시작 이벤트
-document.addEventListener("dragstart", (e) => {
-  if (e.target.classList.contains("tile")) {
-    e.dataTransfer.setData("text/plain", e.target.id);
-  }
-});
+let selectedTile = null;
+let touchStartTarget = null;
 
-// 4. 슬롯에 드롭 이벤트
-const slots = document.querySelectorAll(".slot");
+// 모든 타일 이벤트 처리
+document.querySelectorAll(".tile").forEach((tile) => {
+  // 드래그
+  tile.setAttribute("draggable", true);
+  tile.addEventListener("dragstart", (e) => {
+    selectedTile = tile;
+    e.dataTransfer.setData("text/plain", tile.id);
+  });
 
-slots.forEach((slot) => {
-  slot.addEventListener("dragover", (e) => e.preventDefault());
-
-  slot.addEventListener("drop", (e) => {
-    e.preventDefault();
-    const tileId = e.dataTransfer.getData("text/plain");
-    const tile = document.getElementById(tileId);
-
-    // 슬롯에 이미 타일이 있으면 무시
-    if (slot.children.length === 0) {
-      slot.appendChild(tile);
-      tile.style.width = "100%";
-    }
+  // 터치 시작 → 어떤 타일이 선택되었는지 기억
+  tile.addEventListener("touchstart", (e) => {
+    selectedTile = tile;
+    touchStartTarget = e.target;
+    tile.classList.add("selected");
   });
 });
 
-// 5. 슬롯에서 타일뱅크로
-tileBank.addEventListener("dragover", (e) => e.preventDefault());
+// 화면 전체에 터치 종료 이벤트 추가 (슬롯이 터치 이벤트를 못 받는 경우 대비)
+document.addEventListener("touchend", (e) => {
+  if (!selectedTile) return;
 
-tileBank.addEventListener("drop", (e) => {
-  e.preventDefault();
-  const tileId = e.dataTransfer.getData("text/plain");
-  const tile = document.getElementById(tileId);
+  const touch = e.changedTouches[0];
+  const elemAtTouch = document.elementFromPoint(touch.clientX, touch.clientY);
 
-  // 뱅크에 이미 있는 경우 무시
-  if (!tileBank.contains(tile)) {
-    tile.style.width = ""; // 슬롯에서 커졌던 사이즈 초기화
-    tileBank.appendChild(tile);
+  if (!elemAtTouch) return;
+
+  // 슬롯에 떨어뜨리면
+  if (elemAtTouch.classList.contains("slot")) {
+    elemAtTouch.innerHTML = "";
+    elemAtTouch.appendChild(selectedTile);
+    calculateScore();
   }
+
+  // 타일 뱅크에 떨어뜨리면
+  else if (
+    elemAtTouch.id === "tile-bank" ||
+    elemAtTouch.closest("#tile-bank")
+  ) {
+    document.getElementById("tile-bank").appendChild(selectedTile);
+  }
+
+  selectedTile.classList.remove("selected");
+  selectedTile = null;
+  touchStartTarget = null;
 });
 function resetBoard() {
   const tileBank = document.getElementById("tile-bank");
