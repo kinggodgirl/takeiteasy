@@ -1,0 +1,93 @@
+/* 전체 페이지 스타일 */
+body {
+  font-family: sans-serif;
+  text-align: center;
+  background: #f0f0f0;
+  margin: 0;
+  padding: 20px;
+}
+button {
+  margin-bottom: 50px;
+}
+/* 타이틀 */
+h1 {
+  margin-bottom: 30px;
+}
+
+/* 타일 뱅크: 아직 배치되지 않은 타일들 */
+#tile-bank {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+/* 타일 이미지 */
+.tile {
+  width: 80px;
+  height: auto;
+  cursor: grab;
+  transition: transform 0.2s;
+}
+
+.tile:active {
+  transform: scale(1.05);
+}
+
+/* 슬롯: 타일을 놓을 수 있는 자리 */
+.slot {
+  width: 100px;
+  height: 86.6px; /* width × 0.866 */
+  background-color: #31ff76;
+  clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
+  box-shadow: 0 0 0 1px #050505; /* 테두리처럼 보이게 */
+  box-sizing: border-box;
+}
+
+.row {
+  display: flex;
+  justify-content: center;
+  gap: 51px;
+  margin-top: -42.3px;
+}
+
+#scoreboard {
+  width: 200px;
+  padding: 15px;
+  background: #f9f9f9;
+  border: 2px solid #aaa;
+  border-radius: 8px;
+  font-family: sans-serif;
+  margin-top: -80px;
+}
+
+#scoreboard h2 {
+  margin-top: 0;
+  font-size: 1.2em;
+  border-bottom: 1px solid #ccc;
+}
+
+#score-list {
+  list-style: none;
+  padding: 0;
+  margin-bottom: 10px;
+}
+
+#score-list li {
+  margin: 5px 0;
+  font-size: 0.9em;
+}
+
+#total-score {
+  font-weight: bold;
+  font-size: 1em;
+  text-align: center;
+}
+#mainboard {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 40px; /* 보드와 점수판 간 간격 */
+  margin-top: 40px;
+}

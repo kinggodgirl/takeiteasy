@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Take It Easy</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <h1>🎲 Take It Easy</h1>
+    <!-- 타일 뱅크: 아직 배치되지 않은 타일들이 여기에 표시됨 -->
+
+    <div id="tile-bank"></div>
+    <button onclick="resetBoard()">초기화</button>
+    <button onclick="calculateScore()">점수 계산</button>
+    <!-- 보드판: 타일을 드래그해서 놓을 수 있는 19칸 -->
+    <div id="mainboard">
+      <div id="scoreboard">
+        <h2>점수판</h2>
+        <ul id="score-list">
+          <!-- 각 줄 점수 표시 -->
+        </ul>
+        <div id="total-score">총 점수: 0</div>
+      </div>
+      <div id="board">
+        <div class="row r0">
+          <div class="slot" id="slot-0"></div>
+        </div>
+        <div class="row r1">
+          <div class="slot" id="slot-1"></div>
+          <div class="slot" id="slot-2"></div>
+        </div>
+        <div class="row r2">
+          <div class="slot" id="slot-3"></div>
+          <div class="slot" id="slot-4"></div>
+          <div class="slot" id="slot-5"></div>
+        </div>
+        <div class="row r3">
+          <div class="slot" id="slot-6"></div>
+          <div class="slot" id="slot-7"></div>
+        </div>
+        <div class="row r4">
+          <div class="slot" id="slot-8"></div>
+          <div class="slot" id="slot-9"></div>
+          <div class="slot" id="slot-10"></div>
+        </div>
+        <div class="row r5">
+          <div class="slot" id="slot-11"></div>
+          <div class="slot" id="slot-12"></div>
+        </div>
+        <div class="row r6">
+          <div class="slot" id="slot-13"></div>
+          <div class="slot" id="slot-14"></div>
+          <div class="slot" id="slot-15"></div>
+        </div>
+        <div class="row r7">
+          <div class="slot" id="slot-16"></div>
+          <div class="slot" id="slot-17"></div>
+        </div>
+        <div class="row r8"><div class="slot" id="slot-18"></div></div>
+      </div>
+    </div>
+    <!-- JavaScript 연결 -->
+    <script src="script.js"></script>
+  </body>
+</html>
