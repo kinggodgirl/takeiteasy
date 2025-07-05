@@ -109,6 +109,8 @@ and (max-width: 600px) {
   list-style: none;
   padding: 0;
   margin-bottom: 10px;
+  max-height: 200px;
+  overflow-y: auto;
 }
 
 #score-list li {
@@ -156,4 +158,8 @@ and (max-width: 600px) {
 }
 
 .group-9::before {
+}
+.slot:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 6px rgba(0, 0, 0, 0.2);
 }

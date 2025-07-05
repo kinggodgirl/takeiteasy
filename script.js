@@ -116,7 +116,44 @@ tileBank.addEventListener("drop", (e) => {
   group?.appendChild(tile);
   selectedTile = null;
 });
+let sourceSlot = null;
 
+document.querySelectorAll(".slot").forEach((slot) => {
+  // 드래그 시작할 때
+  slot.addEventListener("dragstart", (e) => {
+    const tile = slot.firstChild;
+    if (!tile) return;
+    sourceSlot = slot;
+    e.dataTransfer.setData("text/plain", tile.id);
+  });
+});
+
+document.querySelectorAll(".slot").forEach((slot) => {
+  slot.addEventListener("dragover", (e) => e.preventDefault());
+
+  slot.addEventListener("drop", (e) => {
+    e.preventDefault();
+    const tileId = e.dataTransfer.getData("text/plain");
+    const draggedTile = document.getElementById(tileId);
+
+    if (!sourceSlot || sourceSlot === slot) return;
+
+    const targetTile = slot.firstChild;
+
+    // 두 슬롯 모두 타일 있을 경우 → 교환
+    if (targetTile) {
+      sourceSlot.appendChild(targetTile);
+      slot.appendChild(draggedTile);
+    }
+    // 대상 슬롯이 빈 경우 → 이동
+    else {
+      slot.appendChild(draggedTile);
+    }
+
+    sourceSlot = null;
+    calculateScore();
+  });
+});
 // 점수 계산 관련
 const verticalLines = [
   [3, 8, 13],
