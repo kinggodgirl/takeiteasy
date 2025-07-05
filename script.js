@@ -1,4 +1,3 @@
-// 1. 타일 파일 이름 목록
 const tileFilenames = [
   "123",
   "124",
@@ -29,77 +28,87 @@ const tileFilenames = [
   "978",
 ];
 
-// 2. 타일 뱅크에 이미지 추가
 const tileBank = document.getElementById("tile-bank");
 
+// 타일 생성
 tileFilenames.forEach((name) => {
   const img = document.createElement("img");
   img.src = `tiles/${name}.png`;
   img.className = "tile";
   img.id = `tile-${name}`;
   img.draggable = true;
-  img.dataset.code = name; // 숫자 정보 저장
+  img.dataset.code = name;
   tileBank.appendChild(img);
 });
 
 let selectedTile = null;
-let touchStartTarget = null;
 
-// 모든 타일 이벤트 처리
-document.querySelectorAll(".tile").forEach((tile) => {
-  // 드래그
-  tile.setAttribute("draggable", true);
-  tile.addEventListener("dragstart", (e) => {
-    selectedTile = tile;
-    e.dataTransfer.setData("text/plain", tile.id);
+// 타일 이벤트 등록
+function registerTileEvents() {
+  document.querySelectorAll(".tile").forEach((tile) => {
+    tile.addEventListener("dragstart", (e) => {
+      selectedTile = tile;
+      e.dataTransfer.setData("text/plain", tile.id);
+    });
+
+    tile.addEventListener("touchstart", (e) => {
+      selectedTile = tile;
+      tile.classList.add("selected");
+    });
   });
+}
 
-  // 터치 시작 → 어떤 타일이 선택되었는지 기억
-  tile.addEventListener("touchstart", (e) => {
-    selectedTile = tile;
-    touchStartTarget = e.target;
-    tile.classList.add("selected");
+registerTileEvents();
+
+// 슬롯 드롭 이벤트
+document.querySelectorAll(".slot").forEach((slot) => {
+  slot.addEventListener("dragover", (e) => e.preventDefault());
+
+  slot.addEventListener("drop", (e) => {
+    if (slot.firstChild) return;
+
+    e.preventDefault();
+    const id = e.dataTransfer.getData("text/plain");
+    const tile = document.getElementById(id);
+    slot.innerHTML = "";
+    slot.appendChild(tile);
+    selectedTile = null;
+    calculateScore();
   });
 });
 
-// 화면 전체에 터치 종료 이벤트 추가 (슬롯이 터치 이벤트를 못 받는 경우 대비)
+// 터치로 놓기 (전역)
 document.addEventListener("touchend", (e) => {
   if (!selectedTile) return;
 
   const touch = e.changedTouches[0];
-  const elemAtTouch = document.elementFromPoint(touch.clientX, touch.clientY);
+  const target = document.elementFromPoint(touch.clientX, touch.clientY);
 
-  if (!elemAtTouch) return;
+  if (target?.classList.contains("slot")) {
+    // 이미 타일이 있으면 놓지 않음
+    if (target.firstChild) return;
 
-  // 슬롯에 떨어뜨리면
-  if (elemAtTouch.classList.contains("slot")) {
-    elemAtTouch.innerHTML = "";
-    elemAtTouch.appendChild(selectedTile);
+    target.appendChild(selectedTile);
     calculateScore();
-  }
-
-  // 타일 뱅크에 떨어뜨리면
-  else if (
-    elemAtTouch.id === "tile-bank" ||
-    elemAtTouch.closest("#tile-bank")
-  ) {
-    document.getElementById("tile-bank").appendChild(selectedTile);
+  } else if (target?.id === "tile-bank" || target?.closest("#tile-bank")) {
+    tileBank.appendChild(selectedTile);
   }
 
   selectedTile.classList.remove("selected");
   selectedTile = null;
-  touchStartTarget = null;
 });
-function resetBoard() {
-  const tileBank = document.getElementById("tile-bank");
-  document.querySelectorAll(".slot").forEach((slot) => {
-    const tile = slot.firstChild;
-    if (tile) {
-      tile.style.width = ""; // 👉 보드에서 수정된 스타일 리셋
-      tileBank.appendChild(tile);
-    }
-  });
-}
+
+// 뱅크 드래그 복귀
+tileBank.addEventListener("dragover", (e) => e.preventDefault());
+tileBank.addEventListener("drop", (e) => {
+  e.preventDefault();
+  const tileId = e.dataTransfer.getData("text/plain");
+  const tile = document.getElementById(tileId);
+  tileBank.appendChild(tile);
+  selectedTile = null;
+});
+
+// 점수 계산 관련
 const verticalLines = [
   [3, 8, 13],
   [1, 6, 11, 16],
@@ -107,7 +116,6 @@ const verticalLines = [
   [2, 7, 12, 17],
   [5, 10, 15],
 ];
-
 const diagonalRightLines = [
   [0, 1, 3],
   [2, 4, 6, 8],
@@ -115,7 +123,6 @@ const diagonalRightLines = [
   [10, 12, 14, 16],
   [15, 17, 18],
 ];
-
 const diagonalLeftLines = [
   [0, 2, 5],
   [1, 4, 7, 10],
@@ -123,35 +130,43 @@ const diagonalLeftLines = [
   [8, 11, 14, 17],
   [13, 16, 18],
 ];
-function calculateScore() {
-  let totalScore = 0;
-  const scoreList = document.getElementById("score-list");
-  scoreList.innerHTML = ""; // 초기화
 
-  const directions = [
-    { name: "세로", lines: verticalLines, index: 0 },
-    { name: "↙ 대각선", lines: diagonalRightLines, index: 1 },
-    { name: "↘ 대각선", lines: diagonalLeftLines, index: 2 },
+function calculateScore() {
+  let total = 0;
+  const list = document.getElementById("score-list");
+  list.innerHTML = "";
+
+  const dirs = [
+    { name: "세로", lines: verticalLines, idx: 0 },
+    { name: "↙ 대각선", lines: diagonalRightLines, idx: 1 },
+    { name: "↘ 대각선", lines: diagonalLeftLines, idx: 2 },
   ];
 
-  directions.forEach(({ name, lines, index }) => {
-    lines.forEach((line, lineIdx) => {
-      const numbers = line.map((slotId) => {
-        const slot = document.getElementById(`slot-${slotId}`);
-        const tile = slot?.firstChild;
-        return tile?.dataset.code?.[index] || null;
+  dirs.forEach(({ name, lines, idx }) => {
+    lines.forEach((line, i) => {
+      const nums = line.map((id) => {
+        const slot = document.getElementById(`slot-${id}`);
+        return slot?.firstChild?.dataset.code?.[idx] || null;
       });
 
-      if (numbers.every((n) => n && n === numbers[0])) {
-        const lineScore = parseInt(numbers[0]) * numbers.length;
-        totalScore += lineScore;
+      if (nums.every((n) => n && n === nums[0])) {
+        const score = parseInt(nums[0]) * nums.length;
+        total += score;
 
         const li = document.createElement("li");
-        li.textContent = `${name} 줄 ${lineIdx + 1} → ${lineScore}점`;
-        scoreList.appendChild(li);
+        li.textContent = `${name} 줄 ${i + 1} → ${score}점`;
+        list.appendChild(li);
       }
     });
   });
 
-  document.getElementById("total-score").textContent = `총 점수: ${totalScore}`;
+  document.getElementById("total-score").textContent = `총 점수: ${total}`;
+}
+
+function resetBoard() {
+  document.querySelectorAll(".slot").forEach((slot) => {
+    const tile = slot.firstChild;
+    if (tile) tileBank.appendChild(tile);
+  });
+  calculateScore();
 }
