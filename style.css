@@ -104,3 +104,22 @@ h1 {
   height: 100%;
   object-fit: contain;
 }
+@media screen and (max-width: 600px) {
+  #tile-bank {
+    max-width: 95vw;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin: 0 auto;
+  }
+
+  .tile {
+    width: 45px;
+    height: 45px;
+    margin: 4px;
+  }
+
+  .slot {
+    width: 45px;
+    height: 45px;
+  }
+}
